@@ -49,21 +49,32 @@ public class Manager {
 		connection.start();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-		// Destination destination = null;
-		if (destinationName.startsWith(TOPIC_PREFIX)) {
-			destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-		} else {
-			destination = session.createQueue(destinationName);
-		}
+//		Destination destination = null;
+//		if (destinationName.startsWith(TOPIC_PREFIX)) {
+//			//destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+//			destination = session.createQueue(destinationName);
+//		} else {
+//			destination = session.createQueue(destinationName);
+//		}
 
-		consumer = session.createConsumer(destination);
-		// long start = System.currentTimeMillis();
+		 Destination destinationTopic = null;
+		 Destination destinationQueue = null;
+		
+		 destinationTopic =
+		 session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+		 destinationQueue = session.createQueue(destinationName);
+		
+		 consumerTopic = session.createConsumer(destinationTopic);
+		 consumerQueue = session.createConsumer(destinationQueue);
+
+		// consumerTopic = session.createConsumer(destination);
 	}
-	
+
 	private void receiveMessages() throws Exception {
 		System.out.println("Waiting for messages...");
 		while (true) {
-			Message msg = consumer.receive();
+			//Message msg = consumerTopic.receive();
+			Message msg = consumerQueue.receive();
 			if (msg instanceof TextMessage) {
 				String body = ((TextMessage) msg).getText();
 				if ("SHUTDOWN".equals(body)) {
@@ -85,6 +96,6 @@ public class Manager {
 
 	private Connection connection;
 	private Session session;
-	private Destination destination;
-	private MessageConsumer consumer;
+	private MessageConsumer consumerTopic;
+	private MessageConsumer consumerQueue;
 }

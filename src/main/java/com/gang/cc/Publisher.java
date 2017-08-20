@@ -56,15 +56,29 @@ class Publisher {
 
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-		Destination destination = null;
-		if (destinationName.startsWith(TOPIC_PREFIX)) {
-			destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-		} else {
-			destination = session.createQueue(destinationName);
-		}
+//		Destination destinationTopic = null;
+//		if (destinationName.startsWith(TOPIC_PREFIX)) {
+//			// destinationTopic = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+//			destinationTopic = session.createQueue(destinationName);
+//		} else {
+//			destinationTopic = session.createQueue(destinationName);
+//		}
 
-		producer = session.createProducer(destination);
-		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		 Destination destinationTopic = null;
+		 Destination destinationQueue = null;
+		
+		 destinationTopic =
+		 session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+		
+		 destinationQueue = session.createQueue(destinationName);
+		
+		 producerTopic = session.createProducer(destinationTopic);
+		 producerTopic.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		
+		 producerQueue = session.createProducer(destinationQueue);
+		 producerQueue.setDeliveryMode(DeliveryMode.PERSISTENT);
+		
+		// producerTopic = session.createProducer(destinationTopic);
 	}
 
 	private void inputNumber() {
@@ -75,25 +89,26 @@ class Publisher {
 	}
 
 	private void sendMessages() throws Exception {
-		// int messages = 8;
 		// String body = "abcxyz";
 		for (int i = 1; i <= numberOfMessages; i++) {
 			TextMessage msg = session.createTextMessage(MESSAGE);
 			msg.setIntProperty("id", i);
-			producer.send(msg);
+			//producerTopic.send(msg);
+			producerQueue.send(msg);
 			System.out.println(String.format("Sent %d messages", i));
 		}
 
-		producer.send(session.createTextMessage("SHUTDOWN"));
+		producerTopic.send(session.createTextMessage("SHUTDOWN"));
 		// Thread.sleep(1000 * 3);
 	}
-	
+
 	private void close() throws Exception {
 		connection.close();
 	}
 
 	private final String MESSAGE = "new jobs available";
-	private MessageProducer producer;
+	private MessageProducer producerTopic;
+	private MessageProducer producerQueue;
 	private Session session;
 	private Connection connection;
 	private int numberOfMessages;
