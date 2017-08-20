@@ -49,23 +49,23 @@ public class Manager {
 		connection.start();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-//		Destination destination = null;
-//		if (destinationName.startsWith(TOPIC_PREFIX)) {
-//			//destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-//			destination = session.createQueue(destinationName);
-//		} else {
-//			destination = session.createQueue(destinationName);
-//		}
+		// Destination destination = null;
+		// if (destinationName.startsWith(TOPIC_PREFIX)) {
+		// //destination =
+		// session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+		// destination = session.createQueue(destinationName);
+		// } else {
+		// destination = session.createQueue(destinationName);
+		// }
 
-		 Destination destinationTopic = null;
-		 Destination destinationQueue = null;
-		
-		 destinationTopic =
-		 session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-		 destinationQueue = session.createQueue(destinationName);
-		
-		 consumerTopic = session.createConsumer(destinationTopic);
-		 consumerQueue = session.createConsumer(destinationQueue);
+		Destination destinationTopic = null;
+		Destination destinationQueue = null;
+
+		destinationTopic = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+		destinationQueue = session.createQueue(destinationName);
+
+		consumerTopic = session.createConsumer(destinationTopic);
+		consumerQueue = session.createConsumer(destinationQueue);
 
 		// consumerTopic = session.createConsumer(destination);
 	}
@@ -73,8 +73,9 @@ public class Manager {
 	private void receiveMessages() throws Exception {
 		System.out.println("Waiting for messages...");
 		while (true) {
-			//Message msg = consumerTopic.receive();
-			Message msg = consumerQueue.receive();
+			Message msg = consumerTopic.receive();
+			System.out.println("msg from topic received.");
+			msg = consumerQueue.receive();
 			if (msg instanceof TextMessage) {
 				String body = ((TextMessage) msg).getText();
 				if ("SHUTDOWN".equals(body)) {

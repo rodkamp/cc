@@ -84,14 +84,17 @@ class Publisher {
 	private void inputNumber() {
 		System.out.println("Enter number of jobs: ");
 		Scanner scanner = new Scanner(System.in);
-		numberOfMessages = scanner.nextInt();
+		numberOfJobs = scanner.nextInt();
 		scanner.close();
 	}
 
 	private void sendMessages() throws Exception {
-		// String body = "abcxyz";
-		for (int i = 1; i <= numberOfMessages; i++) {
-			TextMessage msg = session.createTextMessage(MESSAGE);
+		// send the message "new jobs available" to topic
+		producerTopic.send(session.createTextMessage(MESSAGE));
+		
+		// send jobs to queue
+		for (int i = 1; i <= numberOfJobs; i++) {
+			TextMessage msg = session.createTextMessage("Job");
 			msg.setIntProperty("id", i);
 			//producerTopic.send(msg);
 			producerQueue.send(msg);
@@ -111,6 +114,6 @@ class Publisher {
 	private MessageProducer producerQueue;
 	private Session session;
 	private Connection connection;
-	private int numberOfMessages;
+	private int numberOfJobs;
 
 }
