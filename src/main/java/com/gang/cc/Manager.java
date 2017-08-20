@@ -12,8 +12,27 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class Manager {
 
-	public static void main(String[] args) throws JMSException {
+	public static void main(String[] args) throws Exception {
+		Manager manager = new Manager();
+		manager.init(args);
+		manager.receiveMessages();
+	}
 
+	private static String env(String key, String defaultValue) {
+		String rc = System.getenv(key);
+		if (rc == null)
+			return defaultValue;
+		return rc;
+	}
+
+	private static String arg(String[] args, int index, String defaultValue) {
+		if (index < args.length)
+			return args[index];
+		else
+			return defaultValue;
+	}
+
+	private void init(String[] args) throws Exception {
 		final String TOPIC_PREFIX = "topic://";
 
 		String user = env("ACTIVEMQ_USER", "admin");
@@ -26,25 +45,28 @@ public class Manager {
 
 		JmsConnectionFactory factory = new JmsConnectionFactory(connectionURI);
 
-		Connection connection = factory.createConnection(user, password);
+		connection = factory.createConnection(user, password);
 		connection.start();
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-		Destination destination = null;
+		// Destination destination = null;
 		if (destinationName.startsWith(TOPIC_PREFIX)) {
 			destination = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
 		} else {
 			destination = session.createQueue(destinationName);
 		}
 
-		MessageConsumer consumer = session.createConsumer(destination);
+		consumer = session.createConsumer(destination);
 		// long start = System.currentTimeMillis();
+	}
+	
+	private void receiveMessages() throws Exception {
 		System.out.println("Waiting for messages...");
 		while (true) {
 			Message msg = consumer.receive();
 			if (msg instanceof TextMessage) {
 				String body = ((TextMessage) msg).getText();
-				if ("SHUTDOWN".equals(body)) {		
+				if ("SHUTDOWN".equals(body)) {
 					connection.close();
 					try {
 						Thread.sleep(10);
@@ -61,17 +83,8 @@ public class Manager {
 		}
 	}
 
-	private static String env(String key, String defaultValue) {
-		String rc = System.getenv(key);
-		if (rc == null)
-			return defaultValue;
-		return rc;
-	}
-
-	private static String arg(String[] args, int index, String defaultValue) {
-		if (index < args.length)
-			return args[index];
-		else
-			return defaultValue;
-	}
+	private Connection connection;
+	private Session session;
+	private Destination destination;
+	private MessageConsumer consumer;
 }
