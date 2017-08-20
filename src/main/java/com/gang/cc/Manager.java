@@ -1,5 +1,8 @@
 package com.gang.cc;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -16,6 +19,7 @@ public class Manager {
 		Manager manager = new Manager();
 		manager.init(args);
 		manager.receiveMessages();
+		manager.close();
 	}
 
 	private static String env(String key, String defaultValue) {
@@ -68,6 +72,8 @@ public class Manager {
 		consumerQueue = session.createConsumer(destinationQueue);
 
 		// consumerTopic = session.createConsumer(destination);
+
+		executorService = Executors.newFixedThreadPool(NUMBEROFWORKERS);
 	}
 
 	private void receiveMessages() throws Exception {
@@ -75,28 +81,87 @@ public class Manager {
 		while (true) {
 			Message msg = consumerTopic.receive();
 			System.out.println("msg from topic received.");
-			msg = consumerQueue.receive();
-			if (msg instanceof TextMessage) {
-				String body = ((TextMessage) msg).getText();
-				if ("SHUTDOWN".equals(body)) {
-					connection.close();
-					try {
-						Thread.sleep(10);
-					} catch (Exception e) {
-					}
-					System.exit(1);
-				} else {
-					System.out.println(String.format("Received message %d %s.", msg.getIntProperty("id"), body));
-				}
-
-			} else {
-				System.out.println("Unexpected message type: " + msg.getClass());
-			}
+			Thread dispatcher = new Thread(new JobDispatcher());
+			dispatcher.start();
+			//executorService.execute(new JobDispatcher());
+			// msg = consumerQueue.receive();
+			// if (msg instanceof TextMessage) {
+			// String body = ((TextMessage) msg).getText();
+			// if ("SHUTDOWN".equals(body)) {
+			// connection.close();
+			// try {
+			// Thread.sleep(10);
+			// } catch (Exception e) {
+			// }
+			// System.exit(1);
+			// } else {
+			// // System.out.println(String.format("Received message %d
+			// // %s.", msg.getIntProperty("id"), body));
+			// executorService.execute(new Worker());
+			// }
+			//
+			// } else {
+			// System.out.println("Unexpected message type: " + msg.getClass());
+			// }
 		}
+		// System.out.println("Waiting for messages...");
+		// while (true) {
+		// Message msg = consumerTopic.receive();
+		// System.out.println("msg from topic received.");
+		// msg = consumerQueue.receive();
+		// if (msg instanceof TextMessage) {
+		// String body = ((TextMessage) msg).getText();
+		// if ("SHUTDOWN".equals(body)) {
+		// connection.close();
+		// try {
+		// Thread.sleep(10);
+		// } catch (Exception e) {
+		// }
+		// System.exit(1);
+		// } else {
+		// System.out.println(String.format("Received message %d %s.",
+		// msg.getIntProperty("id"), body));
+		// }
+		//
+		// } else {
+		// System.out.println("Unexpected message type: " + msg.getClass());
+		// }
+		// }
+	}
+
+	private void close() {
+		executorService.shutdown();
 	}
 
 	private Connection connection;
 	private Session session;
 	private MessageConsumer consumerTopic;
 	private MessageConsumer consumerQueue;
+	private ExecutorService executorService;
+	
+	private final int NUMBEROFWORKERS = 10;
+
+	class JobDispatcher implements Runnable {
+
+		@Override
+		public void run() {
+			System.out.println("in JobDispatcher");
+			Message msg = null;
+			try {
+				while (true) {
+					msg = consumerQueue.receive();
+					if (msg instanceof TextMessage) {
+						String job = ((TextMessage) msg).getText();
+						System.out.println("in JobDispatcher, msg = " + job);
+						executorService.execute(new Worker(job));
+					}
+				}
+
+			} catch (JMSException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+	}
 }

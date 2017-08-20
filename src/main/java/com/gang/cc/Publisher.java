@@ -94,7 +94,7 @@ class Publisher {
 		
 		// send jobs to queue
 		for (int i = 1; i <= numberOfJobs; i++) {
-			TextMessage msg = session.createTextMessage("Job");
+			TextMessage msg = session.createTextMessage("Job"+i);
 			msg.setIntProperty("id", i);
 			//producerTopic.send(msg);
 			producerQueue.send(msg);
