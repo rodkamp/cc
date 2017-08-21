@@ -15,8 +15,8 @@ Run:
 
 ## Running the Examples
 
-In one terminal window run:
-    start ActiveMQ
+In one terminal window:
+    start ActiveMQ (per ActiveMQ's guide)
     
 In three terminal windows run the 3 Managers
 
