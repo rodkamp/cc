@@ -28,7 +28,7 @@ In another terminal window run the Publisher:
 
 ## TODO:
 due to time limitation, the followings have not been fully implemented:
-1. check whether manager a manager has ideal worker;  (learn whether ExecutorService can check ideal thread OR manage a thread safe integer to represent whether there are ideal workers;
+1. check whether a manager has ideal workers;  (whether ExecutorService can check ideal threads OR manage a thread safe integer to represent whether there are ideal workers;)
 2. stop the Publisher and Managers gracefully;
 3. exception handling and logging;
 4. javadoc;
