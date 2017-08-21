@@ -1,5 +1,6 @@
 package com.gang.cc;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import javax.jms.Connection;
@@ -17,11 +18,11 @@ class Publisher {
 		Publisher publisher = new Publisher();
 
 		publisher.init(args);
-		publisher.inputNumber();
-		publisher.sendMessages();
-		publisher.close();
-
-		System.exit(0);
+		while (true) {
+			publisher.inputNumber();
+			publisher.sendMessages();
+		}
+		// publisher.close();
 	}
 
 	private static String env(String key, String defaultValue) {
@@ -56,52 +57,51 @@ class Publisher {
 
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-//		Destination destinationTopic = null;
-//		if (destinationName.startsWith(TOPIC_PREFIX)) {
-//			// destinationTopic = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-//			destinationTopic = session.createQueue(destinationName);
-//		} else {
-//			destinationTopic = session.createQueue(destinationName);
-//		}
+		Destination destinationTopic = null;
+		Destination destinationQueue = null;
 
-		 Destination destinationTopic = null;
-		 Destination destinationQueue = null;
-		
-		 destinationTopic =
-		 session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-		
-		 destinationQueue = session.createQueue(destinationName);
-		
-		 producerTopic = session.createProducer(destinationTopic);
-		 producerTopic.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		
-		 producerQueue = session.createProducer(destinationQueue);
-		 producerQueue.setDeliveryMode(DeliveryMode.PERSISTENT);
-		
-		// producerTopic = session.createProducer(destinationTopic);
+		destinationTopic = session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
+
+		destinationQueue = session.createQueue(destinationName);
+
+		producerTopic = session.createProducer(destinationTopic);
+		producerTopic.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+		producerQueue = session.createProducer(destinationQueue);
+		producerQueue.setDeliveryMode(DeliveryMode.PERSISTENT);
 	}
 
 	private void inputNumber() {
-		System.out.println("Enter number of jobs: ");
-		Scanner scanner = new Scanner(System.in);
-		numberOfJobs = scanner.nextInt();
-		scanner.close();
+		boolean loop = true;
+		Scanner scanner = null;
+		while (loop) {
+			System.out.println("Enter number of jobs: ");
+			scanner = new Scanner(System.in);
+			try {
+				numberOfJobs = scanner.nextInt();
+				loop = false;
+			} catch (InputMismatchException e) {
+				System.out.println("This input is incorrect.  Please input an integer.");
+				loop = true;
+			}
+		}
+
 	}
 
 	private void sendMessages() throws Exception {
+		
 		// send the message "new jobs available" to topic
 		producerTopic.send(session.createTextMessage(MESSAGE));
-		
+
 		// send jobs to queue
 		for (int i = 1; i <= numberOfJobs; i++) {
-			TextMessage msg = session.createTextMessage("Job"+i);
+			TextMessage msg = session.createTextMessage("Job" + i);
 			msg.setIntProperty("id", i);
-			//producerTopic.send(msg);
 			producerQueue.send(msg);
 			System.out.println(String.format("Sent %d messages", i));
 		}
 
-		producerTopic.send(session.createTextMessage("SHUTDOWN"));
+		// producerTopic.send(session.createTextMessage("SHUTDOWN"));
 		// Thread.sleep(1000 * 3);
 	}
 
@@ -114,6 +114,6 @@ class Publisher {
 	private MessageProducer producerQueue;
 	private Session session;
 	private Connection connection;
+	
 	private int numberOfJobs;
-
 }

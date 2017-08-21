@@ -53,15 +53,6 @@ public class Manager {
 		connection.start();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-		// Destination destination = null;
-		// if (destinationName.startsWith(TOPIC_PREFIX)) {
-		// //destination =
-		// session.createTopic(destinationName.substring(TOPIC_PREFIX.length()));
-		// destination = session.createQueue(destinationName);
-		// } else {
-		// destination = session.createQueue(destinationName);
-		// }
-
 		Destination destinationTopic = null;
 		Destination destinationQueue = null;
 
@@ -70,8 +61,6 @@ public class Manager {
 
 		consumerTopic = session.createConsumer(destinationTopic);
 		consumerQueue = session.createConsumer(destinationQueue);
-
-		// consumerTopic = session.createConsumer(destination);
 
 		executorService = Executors.newFixedThreadPool(NUMBEROFWORKERS);
 	}
@@ -83,50 +72,8 @@ public class Manager {
 			System.out.println("msg from topic received.");
 			Thread dispatcher = new Thread(new JobDispatcher());
 			dispatcher.start();
-			//executorService.execute(new JobDispatcher());
-			// msg = consumerQueue.receive();
-			// if (msg instanceof TextMessage) {
-			// String body = ((TextMessage) msg).getText();
-			// if ("SHUTDOWN".equals(body)) {
-			// connection.close();
-			// try {
-			// Thread.sleep(10);
-			// } catch (Exception e) {
-			// }
-			// System.exit(1);
-			// } else {
-			// // System.out.println(String.format("Received message %d
-			// // %s.", msg.getIntProperty("id"), body));
-			// executorService.execute(new Worker());
-			// }
-			//
-			// } else {
-			// System.out.println("Unexpected message type: " + msg.getClass());
-			// }
 		}
-		// System.out.println("Waiting for messages...");
-		// while (true) {
-		// Message msg = consumerTopic.receive();
-		// System.out.println("msg from topic received.");
-		// msg = consumerQueue.receive();
-		// if (msg instanceof TextMessage) {
-		// String body = ((TextMessage) msg).getText();
-		// if ("SHUTDOWN".equals(body)) {
-		// connection.close();
-		// try {
-		// Thread.sleep(10);
-		// } catch (Exception e) {
-		// }
-		// System.exit(1);
-		// } else {
-		// System.out.println(String.format("Received message %d %s.",
-		// msg.getIntProperty("id"), body));
-		// }
-		//
-		// } else {
-		// System.out.println("Unexpected message type: " + msg.getClass());
-		// }
-		// }
+
 	}
 
 	private void close() {
@@ -138,8 +85,9 @@ public class Manager {
 	private MessageConsumer consumerTopic;
 	private MessageConsumer consumerQueue;
 	private ExecutorService executorService;
-	
+
 	private final int NUMBEROFWORKERS = 10;
+	// private AtomicInteger capability = new AtomicInteger(NUMBEROFWORKERS);
 
 	class JobDispatcher implements Runnable {
 
@@ -148,7 +96,10 @@ public class Manager {
 			System.out.println("in JobDispatcher");
 			Message msg = null;
 			try {
-				while (true) {
+				// TODO:
+				// could check whether ideal workers if executorService can return whether there is ideal thread in the pool
+				// or use an AtomicInteger, capability, to manage whether there is ideal workers
+				while (true) { 
 					msg = consumerQueue.receive();
 					if (msg instanceof TextMessage) {
 						String job = ((TextMessage) msg).getText();
