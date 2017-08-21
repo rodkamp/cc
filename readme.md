@@ -1,10 +1,10 @@
 ## Overview
 
-This is an example of how use the Java JMS api with ActiveMQ via the AMQP protocol.
+This is the solution for coding challenge.
 
 ## Prereqs
 
-- Install Java SDK
+- Install ActiveMQ
 - Install [Maven](http://maven.apache.org/download.html) 
 
 ## Building
@@ -16,17 +16,20 @@ Run:
 ## Running the Examples
 
 In one terminal window run:
+    start ActiveMQ
+    
+In three terminal windows run the 3 Managers
 
-    java -cp target/amqp-example-0.1-SNAPSHOT.jar example.Listener
+    java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Manager
 
-In another terminal window run:
+In another terminal window run the Publisher:
 
-    java -cp target/amqp-example-0.1-SNAPSHOT.jar example.Publisher
+    java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Publisher
 
-You can control to which AMQP server the examples try to connect to by
-setting the following environment variables: 
-
-* `ACTIVEMQ_HOST`
-* `ACTIVEMQ_PORT`
-* `ACTIVEMQ_USER`
-* `ACTIVEMQ_PASSWORD`
+## TODO:
+due to time limitation, the followings have not been fully implemented:
+1. check whether manager a manager has ideal worker;  (learn whether ExecutorService can check ideal thread OR manage a thread safe integer to represent whether there are ideal workers;
+2. stop the Publisher and Managers gracefully;
+3. exception handling and logging;
+4. javadoc;
+5. unit test;
