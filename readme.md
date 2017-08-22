@@ -27,9 +27,9 @@ In another terminal window run the Publisher:
     java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Publisher
 
 ## TODO:
-due to time limitation, the followings have not been fully implemented:
-1. check whether a manager has ideal workers;  (whether ExecutorService can check ideal threads OR manage a thread safe integer to represent whether there are ideal workers;)
-2. stop the Publisher and Managers gracefully;
-3. exception handling and logging;
+due to time limitation, the followings have not been implemented:
+1. stop the Publisher and Managers gracefully;
+2. exception handling and logging;
+3. configuration of parameters, e.g. number of works, number of jobs, instead of hard-coded ones;
 4. javadoc;
 5. unit test;

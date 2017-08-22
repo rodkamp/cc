@@ -92,13 +92,14 @@ class Publisher {
 		
 		// send the message "new jobs available" to topic
 		producerTopic.send(session.createTextMessage(MESSAGE));
+		System.out.println("sent new jobs available message to topic.");
 
 		// send jobs to queue
 		for (int i = 1; i <= numberOfJobs; i++) {
 			TextMessage msg = session.createTextMessage("Job" + i);
 			msg.setIntProperty("id", i);
 			producerQueue.send(msg);
-			System.out.println(String.format("Sent %d messages", i));
+			System.out.println(String.format("Sent %d jobs to queue.", i));
 		}
 
 		// producerTopic.send(session.createTextMessage("SHUTDOWN"));
