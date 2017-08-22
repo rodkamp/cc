@@ -29,7 +29,7 @@ In another terminal window run the Publisher:
     java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Publisher
 
 ## TODO:
-due to time limitation, also to show the main logic more clearly, the followings have not been implemented:
+due to time limitation, also to be focus on the main logic, the followings have not been implemented:
 1. stop the Publisher and Managers gracefully;
 2. exception handling and logging;
 3. configuration of parameters, e.g. number of works, number of jobs, instead of hard-coded ones;
