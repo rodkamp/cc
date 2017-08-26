@@ -22,7 +22,7 @@ In three terminal windows run the 3 Managers
 
     java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Manager
     
-    Note: Worker is implemented as an inter class of Manager
+    Note: Worker is implemented as an inner class of Manager
 
 In another terminal window run the Publisher:
 
