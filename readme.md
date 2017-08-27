@@ -27,6 +27,9 @@ In three terminal windows run the 3 Managers
 In another terminal window run the Publisher:
 
     java -cp target/cc-solution-0.1-SNAPSHOT.jar com.gang.cc.Publisher
+    
+Note:
+ActiveMQ topics vs queues: https://stackoverflow.com/questions/5576415/jms-topic-vs-queues
 
 ## TODO:
 due to time limitation, also to be focus on the main logic, the followings have not been implemented:
