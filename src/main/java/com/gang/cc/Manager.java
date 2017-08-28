@@ -65,6 +65,9 @@ public class Manager {
 		consumerQueue = session.createConsumer(destinationQueue);
 
 		executorService = Executors.newFixedThreadPool(NUMBEROFWORKERS);
+
+		dispatcher = new Thread(new JobDispatcher());
+		dispatcher.start();
 	}
 
 	private void receiveMessages() throws Exception {
@@ -72,8 +75,8 @@ public class Manager {
 		while (true) {
 			Message msg = consumerTopic.receive();
 			System.out.println("msg received for new job available.");
-			Thread dispatcher = new Thread(new JobDispatcher());
-			dispatcher.start();
+			// Thread dispatcher = new Thread(new JobDispatcher());
+			// dispatcher.start();
 		}
 
 	}
@@ -87,6 +90,8 @@ public class Manager {
 	private MessageConsumer consumerTopic;
 	private MessageConsumer consumerQueue;
 	private ExecutorService executorService;
+
+	private Thread dispatcher;
 
 	private final int NUMBEROFWORKERS = 10;
 	private AtomicInteger numberOfIdealWorkers = new AtomicInteger(NUMBEROFWORKERS);
